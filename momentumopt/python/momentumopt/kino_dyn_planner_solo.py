@@ -120,7 +120,7 @@ def main(argv):
      time_vector) = build_and_optimize_motion(cfg_file, RobotWrapper, with_lqr)
     
     # Display the motion
-    display = True
+    display = False # !!!!!! True
     if(display): # Display the Center of mass motion
         motion_planner.plot_com_motion(optimized_dyn_plan.dynamics_states, optimized_kin_plan.kinematics_states)
         # for i in range(len(time_vector)):
@@ -145,7 +145,7 @@ def main(argv):
         #motion_planner.plot_base_trajecory()
 
     # Potentially simulate the motion
-    simulation = False
+    simulation = True       # !!!!!! previously False !!!!!!
     if simulation:
         motion_executor = MotionExecutor(optimized_kin_plan, optimized_dyn_plan, dynamics_feedback, planner_setting, time_vector)
         motion_executor.execute_motion(plotting=False, tune_online=False)

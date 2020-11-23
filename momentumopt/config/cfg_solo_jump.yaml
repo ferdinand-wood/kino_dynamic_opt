@@ -4,10 +4,10 @@ initial_robot_configuration:
   # Initial robot configuration #
   ###############################
 
-  com: [0.0, 0.0, 0.2]
-  amom: [0.0, 0.0, 0.0]
-  lmom: [0.0, 0.0, 0.0]
-  # weight distribution, normalized by gravity * robot_weight
+  com: [0.0, 0.0, 0.2]    # initial position of center of mass
+  amom: [0.0, 0.0, 0.0]   # initial angular momentum
+  lmom: [0.0, 0.0, 0.0]   # initial linear momentum
+  # weight distribution of the end effectors, normalized by gravity * robot_weight
   eef_ctrl:
     eef_frc_rf: [0.0, 0.0, 0.25]
     eef_frc_lf: [0.0, 0.0, 0.25]
@@ -16,8 +16,8 @@ initial_robot_configuration:
 
   # position of end effectors
   # [1.0,                   # end effector status
-                            # 1.0 : active
-                            # 0.0 : non-active
+                            # 1.0 : active (in contact)
+                            # 0.0 : non-active (not in contact)
   #  0.10, -0.20, -0.32,    # position (x, y, z)
   #  1.0, 0.0, 0.0, 0.0]    # orientation in quaternions (w, q_x, q_y, q_z)
   eef_pose:
@@ -78,7 +78,7 @@ planner_variables:
   # Kinematics parameters #
   #########################
 
-  load_kinematics: true
+  load_kinematics: true   # load the correct kinemataics tree rather using default
 
   display_motion: true
   num_dofs: 8
@@ -94,7 +94,7 @@ planner_variables:
   # Kinematics momentum parameters #
   #########################
 
-  swing_traj_via_z: .4
+  swing_traj_via_z: .4    # weight paraemter, leg swing when not in contact
   w_lin_mom_tracking: 20.
   w_ang_mom_tracking: 1.
   w_endeff_contact: 30.
@@ -153,7 +153,7 @@ planner_variables:
   time_step: 0.01
   time_horizon: 2.99
   external_force: [0.00, 0.00, 0.00]
-  com_displacement: [0.00, 0.0, 0.00]
+  com_displacement: [0.00, 0.0, 0.00]     # diplacement of com from initial time until final time
   # Will only read via points if this number is great than 0
   num_com_viapoints: 0
   # via point definition
