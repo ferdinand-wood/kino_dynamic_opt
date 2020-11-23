@@ -254,18 +254,21 @@ class MotionSimulator(object):
             p.changeDynamics(self.robotId, ji, linearDamping=.04, angularDamping=0.04, restitution=0.0, lateralFriction=0.5)
 
         p.setGravity(0,0, -9.81)
-        p.setPhysicsEngineParameter(1e-3, numSubSteps=1)
+        p.setPhysicsEngineParameter(fixedTimeStep=1e-3, numSubSteps=1)
         print(p.getPhysicsEngineParameters())
 
         # Create the pinocchio robot.
         self.robot = QuadrupedWrapper()
 
-        self.controlled_joints = ['BL_HFE', 'BL_KFE', 'BR_HFE', 'BR_KFE', 'FL_HFE', 'FL_KFE', 'FR_HFE', 'FR_KFE']
+
+        self.controlled_joints = ['HL_HFE', 'HL_KFE', 'HR_HFE', 'HR_KFE', 'FL_HFE', 'FL_KFE', 'FR_HFE', 'FR_KFE']
+        #self.controlled_joints = ['BL_HFE', 'BL_KFE', 'BR_HFE', 'BR_KFE', 'FL_HFE', 'FL_KFE', 'FR_HFE', 'FR_KFE']
 
         # Create the simulator for easier mapping between
         self.sim = Simulator(self.robotId, self.robot,
             self.controlled_joints,
-            ['BL_END', 'BR_END', 'FL_END', 'FR_END', ]
+            #['HL_END', 'HR_END', 'FL_END', 'FR_END', ]
+            ['HL_ANKLE', 'HR_ANKLE', 'FL_ANKLE', 'FR_ANKLE', ]
         )
 
 class MotionExecutor(MotionSimulator):
@@ -368,6 +371,7 @@ class MotionExecutor(MotionSimulator):
                 ptau += np.diag(D) * -dq[6:]
                 self.limit_torques(ptau)
 
+                # Send the desired torque forces to the joints in simulation and proceede a step
                 sim.send_joint_command(ptau)
                 sim.step()
 
@@ -384,7 +388,7 @@ class MotionExecutor(MotionSimulator):
         if not self.dynamics_feedback is None:
             dyn_feedback = desired_state("DYN_FEEDBACK", self.time_vector, dynamics_feedback=self.dynamics_feedback)
 
-        time_horizon = 4.0
+        time_horizon = 3.0
         max_num_iterations = int(time_horizon * 1000)
 
         desired_pos_arr = np.zeros((max_num_iterations, len(self.controlled_joints)))
@@ -424,8 +428,8 @@ class MotionExecutor(MotionSimulator):
                 for eff in self.robot.effs:
                     swing_times[eff] = []
 
-                while loop < max_num_iterations:
-                    t = loop / 1e3
+                while time_id < len(self.optimized_dyn_plan.dynamics_states)-1:
+                    t = loop / 1e2      # !!!!! 1e3
                     if t > self.time_vector[time_id]:
                         time_id += 1
 
@@ -445,8 +449,10 @@ class MotionExecutor(MotionSimulator):
 
                     planned_force = np.zeros((3 * len(self.robot.effs)))
                     jacobians_effs = np.zeros((3 * len(self.robot.effs), self.robot.robot.nv))
+
                     for eff_id, eff in enumerate(self.robot.effs):
-                        eff = eff + "_END"
+                        #eff = eff + "_END"
+                        eff = eff + "_ANKLE"
                         force = self.optimized_dyn_plan.dynamics_states[time_id].effForce(eff_id) * robot_weight
                         # force = self.optimized_dyn_plan.dynamics_states[min(time_id - force_offset, len(self.time_vector) - 1)].effForce(eff_id) * robot_weight
                         # force = self.optimized_dyn_plan.dynamics_states[max(time_id - force_offset, 0)].effForce(eff_id) * robot_weight
@@ -478,6 +484,7 @@ class MotionExecutor(MotionSimulator):
 
                     self.limit_torques(ptau)
 
+                    # Send the desired torque forces to the joints in simulation
                     sim.send_joint_command(ptau)
 
                     desired_pos_arr[loop, :] = des_pos
@@ -505,6 +512,7 @@ class MotionExecutor(MotionSimulator):
                                 if len(swing_times[robot_endeff][-1]) == 1:
                                     swing_times[robot_endeff][-1].append(t)
 
+                    # proceede a step in the simulation
                     sim.step()
                     # sleep(0.001)
 
@@ -537,8 +545,8 @@ class MotionExecutor(MotionSimulator):
                 if tune_online:
                     P, D = self.tunePD(P, D)
                 else:
-                    executing = False
-                    # pass
+                    # executing = False
+                    pass
 
             print("...Finished execution.")
 

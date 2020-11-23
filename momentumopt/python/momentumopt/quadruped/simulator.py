@@ -28,10 +28,12 @@ class Simulator(object):
         self.joint_names = joint_names
         self.endeff_names = endeff_names
 
+        # Create a map with the ids and names of all joints in the bullet model
         bullet_joint_map = {}
         for ji in range(p.getNumJoints(robot_id)):
             bullet_joint_map[p.getJointInfo(robot_id, ji)[1].decode('UTF-8')] = ji
 
+        # Find the ids of the joint_names in the same order in bullet model and pinocchio model
         self.bullet_joint_ids = np.array([bullet_joint_map[name] for name in joint_names])
         self.pinocchio_joint_ids = np.array([pinocchio_robot.model.getJointId(name) for name in joint_names])
 
@@ -40,7 +42,7 @@ class Simulator(object):
             self.pin2bullet_joint_only_array.append(np.where(self.pinocchio_joint_ids == i)[0][0])
 
 
-        # Disable the velocity control on the joints as we use torque control.
+        # Disable the velocity control on the joints as we use torque control in PyBullet.
         p.setJointMotorControlArray(robot_id, self.bullet_joint_ids, p.VELOCITY_CONTROL, forces=np.zeros(self.nj))
 
         # In pybullet, the contact wrench is measured at a joint. In our case
@@ -145,6 +147,7 @@ class Simulator(object):
 
         zeroGains = tau.shape[0] * (0.,)
 
+        # Setting the desired forces at the joints using torque control method in PyBullet
         p.setJointMotorControlArray(self.robot_id, self.bullet_joint_ids, p.TORQUE_CONTROL,
                 forces=tau[self.pin2bullet_joint_only_array],
                 positionGains=zeroGains, velocityGains=zeroGains)
