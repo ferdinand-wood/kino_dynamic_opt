@@ -194,7 +194,7 @@ class QuadrupedWrapper(BasicRobotWrapper):
 
         # Set initial configuration
         angle = np.deg2rad(60.0)
-        q_dummy = np.zeros(self.num_ctrl_joints)
+        q_dummy = np.zeros([self.num_ctrl_joints, 1])
         q_dummy[:] = angle
         q_dummy[::2] = -0.5 * angle
         self.q[7:] = q_dummy.reshape([self.num_ctrl_joints, 1])

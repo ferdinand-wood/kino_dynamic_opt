@@ -10,7 +10,7 @@
 '''
 
 import time
-from pysolver import *
+#from pysolver import *
 from pymomentum import *
 from pysolverlqr import *
 from pinocchio.utils import *
@@ -18,9 +18,9 @@ import os, sys, getopt, numpy as np, pinocchio as pin
 
 from momentumopt.kinoptpy.momentum_kinematics_optimizer import MomentumKinematicsOptimizer
 from momentumopt.motion_execution import MotionExecutor
-from momentumopt.kinoptpy.create_data_file import create_file, create_qp_files, create_lqr_files
+#from momentumopt.kinoptpy.create_data_file import create_file, create_qp_files, create_lqr_files
 
-from momentumopt.motion_planner import MotionPlanner
+# from momentumopt.motion_planner import MotionPlanner
 from .quadruped.quadruped_wrapper import QuadrupedWrapper, Quadruped12Wrapper
 
 import matplotlib.pyplot as plt
@@ -111,43 +111,44 @@ def main(argv):
     # Get the arguments
     cfg_file, RobotWrapper, with_lqr = parse_arguments(argv)
 
-    # Compute the motion
-    (motion_planner, optimized_kin_plan,
-     optimized_motion_eff,
-     optimized_dyn_plan,
-     dynamics_feedback,
-     planner_setting,
-     time_vector) = build_and_optimize_motion(cfg_file, RobotWrapper, with_lqr)
+    ####### Compute the motion #######
+    # (motion_planner, optimized_kin_plan,
+    #  optimized_motion_eff,
+    #  optimized_dyn_plan,
+    #  dynamics_feedback,
+    #  planner_setting,
+    #  time_vector) = build_and_optimize_motion(cfg_file, RobotWrapper, with_lqr)
     
-    # Display the motion
-    display = False # !!!!!! True
-    if(display): # Display the Center of mass motion
-        motion_planner.plot_com_motion(optimized_dyn_plan.dynamics_states, optimized_kin_plan.kinematics_states)
-        # for i in range(len(time_vector)):
-        #     print "\n t:",time_vector[i],"\n"
-        #     print dynamics_feedback.forceGain(i)
-        # motion_planner.plot_centroidal()
+    ###### Display the motion ######
+    # display = False # !!!!!! True
+    # if(display): # Display the Center of mass motion
+    #     motion_planner.plot_com_motion(optimized_dyn_plan.dynamics_states, optimized_kin_plan.kinematics_states)
+    #     # for i in range(len(time_vector)):
+    #     #     print "\n t:",time_vector[i],"\n"
+    #     #     print dynamics_feedback.forceGain(i)
+    #     # motion_planner.plot_centroidal()
 
-    # Create configuration and velocity file from motion plan for dynamic graph
-    try:
-        print("Replay the kinematics.")
-        motion_planner.replay_kinematics()
-    except:
-        "gepetto not initialized..."
+    ######## Create configuration and velocity file from motion plan for dynamic graph ###########
+    # try:
+    #     print("Replay the kinematics.")
+    #     motion_planner.replay_kinematics()
+    # except:
+    #     "gepetto not initialized..."
 
     # Dump the computed trajectory in a files (should follow the dynamic graph format)
-    motion_planner.save_files()
+    # motion_planner.save_files()
 
-    if(display): # plot trajectories
-        motion_planner.plot_foot_traj()
-        motion_planner.plot_joint_trajecory()
-        motion_planner.plot_com_motion(optimized_dyn_plan.dynamics_states, optimized_kin_plan.kinematics_states)
-        #motion_planner.plot_base_trajecory()
+    # if(display): # plot trajectories
+    #     motion_planner.plot_foot_traj()
+    #     motion_planner.plot_joint_trajecory()
+    #     motion_planner.plot_com_motion(optimized_dyn_plan.dynamics_states, optimized_kin_plan.kinematics_states)
+    #     #motion_planner.plot_base_trajecory()
 
     # Potentially simulate the motion
-    simulation = True       # !!!!!! previously False !!!!!!
+    simulation = True
     if simulation:
-        motion_executor = MotionExecutor(optimized_kin_plan, optimized_dyn_plan, dynamics_feedback, planner_setting, time_vector)
+        motion_executor = MotionExecutor()
+        #motion_executor = MotionExecutor(optimized_kin_plan, optimized_dyn_plan, dynamics_feedback, planner_setting, time_vector)
         motion_executor.execute_motion(plotting=False, tune_online=False)
 
     print('Done...')
