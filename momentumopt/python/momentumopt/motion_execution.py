@@ -371,7 +371,8 @@ class MotionExecutor(MotionSimulator):
                 # #self.limit_torques(ptau)
 
                 # # Send the desired torque forces to the joints in simulation and proceede a step
-                # sim.send_joint_command(ptau)
+                ptau = 0.1*np.array([1, 1, 1, 1, 1, 1, 1, 1])
+                sim.send_joint_command(ptau)
                 sim.step()
                 sleep(0.001)
 
