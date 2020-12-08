@@ -282,7 +282,7 @@ class MotionExecutor(MotionSimulator):
         # self.planner_setting = planner_setting
 
 
-        q, dq = self.sim.get_state()
+        q, dq = self.sim.get_state() # q = [base_x, base_y, base_z, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12]
         #q[7:] = self.optimized_kin_plan.kinematics_states[0].robot_posture.joint_positions.reshape((-1, 1))
         self.init_config = q.copy()
 
@@ -342,14 +342,14 @@ class MotionExecutor(MotionSimulator):
 
     #     return com, lmom, amom
 
-    # def limit_torques(self, torque):
-    #     torque[torque < self.tau_min] = self.tau_min
-    #     torque[torque > self.tau_max] = self.tau_max
-    #     return torque
+    def limit_torques(self, torque):
+        torque[torque < self.tau_min] = self.tau_min
+        torque[torque > self.tau_max] = self.tau_max
+        return torque
 
     def execute_motion(self, plotting=False, tune_online=False):
         sim = self.sim
-        P, D = 10. * np.ones(8), 0.3 * np.ones(8)
+        P, D = 10. * np.ones(8), 0.3 * np.ones(8)  # P=10, D=0.3
 
         for i in range(8):
             if "HFE" in self.robot.model.names[int(sim.pinocchio_joint_ids[i])]:
@@ -362,16 +362,25 @@ class MotionExecutor(MotionSimulator):
 
         # Apply gains to reach steady state
         loop = 0
+        self.init_config[7] = -0.5
+        self.init_config[8] = 1
+        self.init_config[9] = -0.5
+        self.init_config[10] = 1
+        self.init_config[11] = 0.5
+        self.init_config[12] = -1
+        self.init_config[13] = 0.5
+        self.init_config[14] = -1
+        print(self.init_config)
         try:
             while 1:  #loop < 2000:
-                # q, dq = sim.get_state()
+                q, dq = sim.get_state()
 
-                # ptau = np.diag(P) * se3.difference(self.robot.model, q, self.init_config)[6:]
-                # ptau += np.diag(D) * -dq[6:]
-                # #self.limit_torques(ptau)
+                ptau = np.diag(P) * se3.difference(self.robot.model, q, self.init_config)[6:]
+                ptau += np.diag(D) * -dq[6:]
+                self.limit_torques(ptau)
 
                 # # Send the desired torque forces to the joints in simulation and proceede a step
-                ptau = 0.1*np.array([1, 1, 1, 1, 1, 1, 1, 1])
+                # ptau = 0*np.array([1, 1, 1, 1, 1, 1, 1, 1])
                 sim.send_joint_command(ptau)
                 sim.step()
                 sleep(0.001)
