@@ -361,21 +361,31 @@ class MotionExecutor(MotionSimulator):
         num_uncontrolled_joints = 6
 
         # Apply gains to reach steady state
-        loop = 0
-        self.init_config[7] = -0.5
+        loop = 0.
+        # self.init_config[7] = -0.5
+        # self.init_config[8] = 1
+        # self.init_config[9] = -0.5
+        # self.init_config[10] = 1
+        # self.init_config[11] = 0.5
+        # self.init_config[12] = -1
+        # self.init_config[13] = 0.5
+        # self.init_config[14] = -1
+        self.init_config[7] = 1
         self.init_config[8] = 1
-        self.init_config[9] = -0.5
+        self.init_config[9] = 1
         self.init_config[10] = 1
-        self.init_config[11] = 0.5
-        self.init_config[12] = -1
-        self.init_config[13] = 0.5
-        self.init_config[14] = -1
+        self.init_config[11] = 1
+        self.init_config[12] = 1
+        self.init_config[13] = 1
+        self.init_config[14] = 1
+        self.q_des = self.init_config
         print(self.init_config)
         try:
             while 1:  #loop < 2000:
+                self.q_des[7:15] = np.ones([8,1])*np.sin(loop/2000)
                 q, dq = sim.get_state()
 
-                ptau = np.diag(P) * se3.difference(self.robot.model, q, self.init_config)[6:]
+                ptau = np.diag(P) * se3.difference(self.robot.model, q, self.q_des)[6:]
                 ptau += np.diag(D) * -dq[6:]
                 self.limit_torques(ptau)
 
