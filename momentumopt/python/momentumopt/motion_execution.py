@@ -44,166 +44,166 @@ from momentumopt.kinoptpy.utils import isfloat
 #         self.D = D
 
 
-# def desired_state(specification, time_vector, optimized_sequence=None, dynamics_feedback=None,
-#                     optimized_dyn_plan=None):
-#     if optimized_sequence is None and dynamics_feedback is None:
-#         raise ValueError("Specify desired positions, velocities or dynamic feedback gains.")
+def desired_state(specification, time_vector, optimized_sequence=None, dynamics_feedback=None,
+                    optimized_dyn_plan=None):
+    if optimized_sequence is None and dynamics_feedback is None:
+        raise ValueError("Specify desired positions, velocities or dynamic feedback gains.")
 
-#     def eff_force_vector(dynamic_state):
-#         """ Combines the forces at each endeffector into a single vector. """
-#         return np.hstack([
-#             dynamic_state.effForce(eff_id) for eff_id in range(dynamic_state.effNum())
-#         ])
+    def eff_force_vector(dynamic_state):
+        """ Combines the forces at each endeffector into a single vector. """
+        return np.hstack([
+            dynamic_state.effForce(eff_id) for eff_id in range(dynamic_state.effNum())
+        ])
 
-#     def desired_state_eval(t):
-#         closest_idx = np.argmin(abs(time_vector - t))
-#         # Determine interval
-#         if time_vector[closest_idx] > t:
-#             t1_idx = max(closest_idx - 1, 0)
-#             t2_idx = closest_idx
-#         else:
-#             t1_idx = closest_idx
-#             t2_idx = min(closest_idx + 1, len(time_vector) - 1)
+    def desired_state_eval(t):
+        closest_idx = np.argmin(abs(time_vector - t))
+        # Determine interval
+        if time_vector[closest_idx] > t:
+            t1_idx = max(closest_idx - 1, 0)
+            t2_idx = closest_idx
+        else:
+            t1_idx = closest_idx
+            t2_idx = min(closest_idx + 1, len(time_vector) - 1)
 
-#         state_1 = None
-#         state_2 = None
+        state_1 = None
+        state_2 = None
 
-#         if specification == "POSITION":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].robot_posture.joint_positions
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].robot_posture.joint_positions
-#         elif specification == "VELOCITY":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].robot_velocity.joint_velocities
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].robot_velocity.joint_velocities
-#         elif specification == "GENERALIZED_POSITION":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].robot_posture.generalized_joint_positions
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].robot_posture.generalized_joint_positions
-#         elif specification == "GENERALIZED_VELOCITY":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].robot_velocity.generalized_joint_velocities
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].robot_velocity.generalized_joint_velocities
-#         elif specification == "GENERALIZED_ACCELERATION":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].robot_acceleration.generalized_joint_accelerations
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].robot_acceleration.generalized_joint_accelerations
-#         elif specification == 'FORCES':
-#             state_1 = eff_force_vector(optimized_dyn_plan.dynamics_states[t1_idx])
-#             state_2 = eff_force_vector(optimized_dyn_plan.dynamics_states[t2_idx])
-#         elif specification == "COM":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].com
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].com
-#         elif specification == "LMOM":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].lmom
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].lmom
-#         elif specification == "AMOM":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].amom
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].amom
-#         elif specification == "DYN_FEEDBACK":
-#             state_1 = dynamics_feedback.forceGain(t1_idx)
-#             state_2 = dynamics_feedback.forceGain(t2_idx)
+        if specification == "POSITION":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].robot_posture.joint_positions
+            state_2 = optimized_sequence.kinematics_states[t2_idx].robot_posture.joint_positions
+        elif specification == "VELOCITY":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].robot_velocity.joint_velocities
+            state_2 = optimized_sequence.kinematics_states[t2_idx].robot_velocity.joint_velocities
+        elif specification == "GENERALIZED_POSITION":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].robot_posture.generalized_joint_positions
+            state_2 = optimized_sequence.kinematics_states[t2_idx].robot_posture.generalized_joint_positions
+        elif specification == "GENERALIZED_VELOCITY":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].robot_velocity.generalized_joint_velocities
+            state_2 = optimized_sequence.kinematics_states[t2_idx].robot_velocity.generalized_joint_velocities
+        elif specification == "GENERALIZED_ACCELERATION":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].robot_acceleration.generalized_joint_accelerations
+            state_2 = optimized_sequence.kinematics_states[t2_idx].robot_acceleration.generalized_joint_accelerations
+        elif specification == 'FORCES':
+            state_1 = eff_force_vector(optimized_dyn_plan.dynamics_states[t1_idx])
+            state_2 = eff_force_vector(optimized_dyn_plan.dynamics_states[t2_idx])
+        elif specification == "COM":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].com
+            state_2 = optimized_sequence.kinematics_states[t2_idx].com
+        elif specification == "LMOM":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].lmom
+            state_2 = optimized_sequence.kinematics_states[t2_idx].lmom
+        elif specification == "AMOM":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].amom
+            state_2 = optimized_sequence.kinematics_states[t2_idx].amom
+        elif specification == "DYN_FEEDBACK":
+            state_1 = dynamics_feedback.forceGain(t1_idx)
+            state_2 = dynamics_feedback.forceGain(t2_idx)
 
-#         delta_t = t - time_vector[t1_idx]
-#         if t2_idx <= 0:
-#             state = state_1
-#         elif t1_idx >= len(time_vector) - 1:
-#             state = state_1
-#         else:
-#             # linearly interpolate between states
-#             state = (state_2 - state_1) / (time_vector[t2_idx] - time_vector[t1_idx]) * delta_t + state_1
+        delta_t = t - time_vector[t1_idx]
+        if t2_idx <= 0:
+            state = state_1
+        elif t1_idx >= len(time_vector) - 1:
+            state = state_1
+        else:
+            # linearly interpolate between states
+            state = (state_2 - state_1) / (time_vector[t2_idx] - time_vector[t1_idx]) * delta_t + state_1
 
-#         return state
+        return state
 
-#     return desired_state_eval
+    return desired_state_eval
 
-# def interpolate(specification, time_vector, optimized_motion_eff=None,\
-#                 optimized_sequence=None, dynamics_feedback=None, \
-#                 optimized_dyn_plan=None, robot_weight=None):
-#     ## for impedance controller
-#     ## interpolates end_eff velocity and positions to bring it to sample rate of 1khz
-#     if optimized_motion_eff is None and dynamics_feedback is None and optimized_sequence is None and optimized_dyn_plan is None:
-#         raise ValueError("Specify desired positions, velocities or dynamic feedback gains.")
+def interpolate(specification, time_vector, optimized_motion_eff=None,\
+                optimized_sequence=None, dynamics_feedback=None, \
+                optimized_dyn_plan=None, robot_weight=None):
+    ## for impedance controller
+    ## interpolates end_eff velocity and positions to bring it to sample rate of 1khz
+    if optimized_motion_eff is None and dynamics_feedback is None and optimized_sequence is None and optimized_dyn_plan is None:
+        raise ValueError("Specify desired positions, velocities or dynamic feedback gains.")
 
-#     def eff_force_vector(dynamic_state):
-#         """ Combines the forces at each endeffector into a single vector. """
-#         return np.hstack([
-#             dynamic_state.effForce(eff_id) for eff_id in range(dynamic_state.effNum())
-#         ])
+    def eff_force_vector(dynamic_state):
+        """ Combines the forces at each endeffector into a single vector. """
+        return np.hstack([
+            dynamic_state.effForce(eff_id) for eff_id in range(dynamic_state.effNum())
+        ])
 
-#     def centroidal_force_vector(dynamic_state, robot_weight):
-#         centroidal_force = np.zeros(len(dynamic_state.effForce(0)))
-#         for eff_id in range(dynamic_state.effNum()):
-#             centroidal_force += (dynamic_state.effForce(eff_id) * robot_weight)
-#         return centroidal_force
+    def centroidal_force_vector(dynamic_state, robot_weight):
+        centroidal_force = np.zeros(len(dynamic_state.effForce(0)))
+        for eff_id in range(dynamic_state.effNum()):
+            centroidal_force += (dynamic_state.effForce(eff_id) * robot_weight)
+        return centroidal_force
 
-#     def centroidal_moment_vector(dynamic_state, robot_weight):
-#         centroidal_moment = np.zeros(len(dynamic_state.effForce(0)))
-#         for eff_id in range(dynamic_state.effNum()):
-#             centroidal_moment += np.cross((dynamic_state.effPosition(eff_id) - dynamic_state.com)\
-#             ,dynamic_state.effForce(eff_id)*robot_weight)
-#         return centroidal_moment
+    def centroidal_moment_vector(dynamic_state, robot_weight):
+        centroidal_moment = np.zeros(len(dynamic_state.effForce(0)))
+        for eff_id in range(dynamic_state.effNum()):
+            centroidal_moment += np.cross((dynamic_state.effPosition(eff_id) - dynamic_state.com)\
+            ,dynamic_state.effForce(eff_id)*robot_weight)
+        return centroidal_moment
 
-#     def desired_state_eval(t):
-#         closest_idx = np.argmin(abs(time_vector - t))
-#         # Determine interval
-#         if time_vector[closest_idx] > t:
-#             t1_idx = max(closest_idx - 1, 0)
-#             t2_idx = closest_idx
-#         else:
-#             t1_idx = closest_idx
-#             t2_idx = min(closest_idx + 1, len(time_vector) - 1)
+    def desired_state_eval(t):
+        closest_idx = np.argmin(abs(time_vector - t))
+        # Determine interval
+        if time_vector[closest_idx] > t:
+            t1_idx = max(closest_idx - 1, 0)
+            t2_idx = closest_idx
+        else:
+            t1_idx = closest_idx
+            t2_idx = min(closest_idx + 1, len(time_vector) - 1)
 
-#         state_1 = None
-#         state_2 = None
+        state_1 = None
+        state_2 = None
 
-#         if specification == "POSITION":
-#             state_1 = optimized_motion_eff["trajectory_wrt_base"][t1_idx]
-#             state_2 = optimized_motion_eff["trajectory_wrt_base"][t2_idx]
-#         elif specification == "VELOCITY":
-#             state_1 = optimized_motion_eff["velocity_wrt_base"][t1_idx]
-#             state_2 = optimized_motion_eff["velocity_wrt_base"][t2_idx]
-#         elif specification == "POSITION_ABSOLUTE":
-#             state_1 = optimized_motion_eff["trajectory"][t1_idx]
-#             state_2 = optimized_motion_eff["trajectory"][t2_idx]
-#         elif specification == "VELOCITY_ABSOLUTE":
-#             state_1 = optimized_motion_eff["velocity"][t1_idx]
-#             state_2 = optimized_motion_eff["velocity"][t2_idx]
-#         elif specification == "COM":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].com
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].com
-#         elif specification == "LMOM":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].lmom
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].lmom
-#         elif specification == "AMOM":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].amom
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].amom
-#         elif specification == "DYN_FEEDBACK":
-#             state_1 = dynamics_feedback.forceGain(t1_idx)
-#             state_2 = dynamics_feedback.forceGain(t2_idx)
-#         elif specification == 'FORCES':
-#             state_1 = eff_force_vector(optimized_dyn_plan.dynamics_states[t1_idx])
-#             state_2 = eff_force_vector(optimized_dyn_plan.dynamics_states[t2_idx])
-#         elif specification == 'CENTROIDAL_FORCES':
-#             state_1 = centroidal_force_vector(optimized_dyn_plan.dynamics_states[t1_idx], robot_weight)
-#             state_2 = centroidal_force_vector(optimized_dyn_plan.dynamics_states[t2_idx], robot_weight)
-#         elif specification == 'CENTROIDAL_MOMENTS':
-#             state_1 = centroidal_moment_vector(optimized_dyn_plan.dynamics_states[t1_idx], robot_weight)
-#             state_2 = centroidal_moment_vector(optimized_dyn_plan.dynamics_states[t2_idx], robot_weight)
-#         elif specification == "QUATERNION":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].robot_posture.generalized_joint_positions[3:7]
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].robot_posture.generalized_joint_positions[3:7]
-#         elif specification == "BASE_ANGULAR_VELOCITY":
-#             state_1 = optimized_sequence.kinematics_states[t1_idx].robot_velocity.generalized_joint_velocities[3:6]
-#             state_2 = optimized_sequence.kinematics_states[t2_idx].robot_velocity.generalized_joint_velocities[3:6]
+        if specification == "POSITION":
+            state_1 = optimized_motion_eff["trajectory_wrt_base"][t1_idx]
+            state_2 = optimized_motion_eff["trajectory_wrt_base"][t2_idx]
+        elif specification == "VELOCITY":
+            state_1 = optimized_motion_eff["velocity_wrt_base"][t1_idx]
+            state_2 = optimized_motion_eff["velocity_wrt_base"][t2_idx]
+        elif specification == "POSITION_ABSOLUTE":
+            state_1 = optimized_motion_eff["trajectory"][t1_idx]
+            state_2 = optimized_motion_eff["trajectory"][t2_idx]
+        elif specification == "VELOCITY_ABSOLUTE":
+            state_1 = optimized_motion_eff["velocity"][t1_idx]
+            state_2 = optimized_motion_eff["velocity"][t2_idx]
+        elif specification == "COM":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].com
+            state_2 = optimized_sequence.kinematics_states[t2_idx].com
+        elif specification == "LMOM":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].lmom
+            state_2 = optimized_sequence.kinematics_states[t2_idx].lmom
+        elif specification == "AMOM":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].amom
+            state_2 = optimized_sequence.kinematics_states[t2_idx].amom
+        elif specification == "DYN_FEEDBACK":
+            state_1 = dynamics_feedback.forceGain(t1_idx)
+            state_2 = dynamics_feedback.forceGain(t2_idx)
+        elif specification == 'FORCES':
+            state_1 = eff_force_vector(optimized_dyn_plan.dynamics_states[t1_idx])
+            state_2 = eff_force_vector(optimized_dyn_plan.dynamics_states[t2_idx])
+        elif specification == 'CENTROIDAL_FORCES':
+            state_1 = centroidal_force_vector(optimized_dyn_plan.dynamics_states[t1_idx], robot_weight)
+            state_2 = centroidal_force_vector(optimized_dyn_plan.dynamics_states[t2_idx], robot_weight)
+        elif specification == 'CENTROIDAL_MOMENTS':
+            state_1 = centroidal_moment_vector(optimized_dyn_plan.dynamics_states[t1_idx], robot_weight)
+            state_2 = centroidal_moment_vector(optimized_dyn_plan.dynamics_states[t2_idx], robot_weight)
+        elif specification == "QUATERNION":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].robot_posture.generalized_joint_positions[3:7]
+            state_2 = optimized_sequence.kinematics_states[t2_idx].robot_posture.generalized_joint_positions[3:7]
+        elif specification == "BASE_ANGULAR_VELOCITY":
+            state_1 = optimized_sequence.kinematics_states[t1_idx].robot_velocity.generalized_joint_velocities[3:6]
+            state_2 = optimized_sequence.kinematics_states[t2_idx].robot_velocity.generalized_joint_velocities[3:6]
 
-#         delta_t = t - time_vector[t1_idx]
-#         if t2_idx <= 0:
-#             state = state_1
-#         elif t1_idx >= len(time_vector) - 1:
-#             state = state_1
-#         else:
-#             # linearly interpolate between states
-#             state = (state_2 - state_1) / (time_vector[t2_idx] - time_vector[t1_idx]) * delta_t + state_1
+        delta_t = t - time_vector[t1_idx]
+        if t2_idx <= 0:
+            state = state_1
+        elif t1_idx >= len(time_vector) - 1:
+            state = state_1
+        else:
+            # linearly interpolate between states
+            state = (state_2 - state_1) / (time_vector[t2_idx] - time_vector[t1_idx]) * delta_t + state_1
 
-#         return state
+        return state
 
-#     return desired_state_eval
+    return desired_state_eval
 
 # def query_gain_from_user(K, gain_str, entered_joint_id):
 #     gain = ""

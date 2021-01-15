@@ -10,7 +10,7 @@
 '''
 
 import time
-#from pysolver import *
+from pysolver import *
 from pymomentum import *
 from pysolverlqr import *
 from pinocchio.utils import *
@@ -18,9 +18,9 @@ import os, sys, getopt, numpy as np, pinocchio as pin
 
 from momentumopt.kinoptpy.momentum_kinematics_optimizer import MomentumKinematicsOptimizer
 from momentumopt.motion_execution import MotionExecutor
-#from momentumopt.kinoptpy.create_data_file import create_file, create_qp_files, create_lqr_files
+from momentumopt.kinoptpy.create_data_file import create_file, create_qp_files, create_lqr_files
 
-# from momentumopt.motion_planner import MotionPlanner
+from momentumopt.motion_planner import MotionPlanner
 from .quadruped.quadruped_wrapper import QuadrupedWrapper, Quadruped12Wrapper
 
 import matplotlib.pyplot as plt
@@ -112,12 +112,12 @@ def main(argv):
     cfg_file, RobotWrapper, with_lqr = parse_arguments(argv)
 
     ####### Compute the motion #######
-    # (motion_planner, optimized_kin_plan,
-    #  optimized_motion_eff,
-    #  optimized_dyn_plan,
-    #  dynamics_feedback,
-    #  planner_setting,
-    #  time_vector) = build_and_optimize_motion(cfg_file, RobotWrapper, with_lqr)
+    (motion_planner, optimized_kin_plan,
+     optimized_motion_eff,
+     optimized_dyn_plan,
+     dynamics_feedback,
+     planner_setting,
+     time_vector) = build_and_optimize_motion(cfg_file, RobotWrapper, with_lqr)
     
     ###### Display the motion ######
     # display = False # !!!!!! True
@@ -136,7 +136,7 @@ def main(argv):
     #     "gepetto not initialized..."
 
     # Dump the computed trajectory in a files (should follow the dynamic graph format)
-    # motion_planner.save_files()
+    motion_planner.save_files()
 
     # if(display): # plot trajectories
     #     motion_planner.plot_foot_traj()
