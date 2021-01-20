@@ -10,6 +10,7 @@
 import os
 import numpy as np
 from time import sleep, time
+import matplotlib.pyplot as plt
 
 import pybullet as p
 import pinocchio as se3
@@ -361,7 +362,7 @@ class MotionExecutor(MotionSimulator):
         num_uncontrolled_joints = 6
 
         # Apply gains to reach steady state
-        loop = 0.
+        loop = 0
         # self.init_config[7] = -0.5
         # self.init_config[8] = 1
         # self.init_config[9] = -0.5
@@ -370,27 +371,49 @@ class MotionExecutor(MotionSimulator):
         # self.init_config[12] = -1
         # self.init_config[13] = 0.5
         # self.init_config[14] = -1
-        self.init_config[7] = 1
-        self.init_config[8] = 1
-        self.init_config[9] = 1
-        self.init_config[10] = 1
-        self.init_config[11] = 1
-        self.init_config[12] = 1
-        self.init_config[13] = 1
-        self.init_config[14] = 1
+        
+        # self.init_config[7] = 1
+        # self.init_config[8] = 1
+        # self.init_config[9] = 1
+        # self.init_config[10] = 1
+        # self.init_config[11] = 1
+        # self.init_config[12] = 1
+        # self.init_config[13] = 1
+        # self.init_config[14] = 1
+
+        data = np.loadtxt("../demos/quadruped_positions.dat")
+        plt.plot(data[:,0], data[:,2])
+        #plt.show()
         self.q_des = self.init_config
         print(self.init_config)
-        try:
-            while 1:  #loop < 2000:
-                self.q_des[7:15] = np.ones([8,1])*np.sin(loop/2000)
-                q, dq = sim.get_state()
 
-                ptau = np.diag(P) * se3.difference(self.robot.model, q, self.q_des)[6:]
+        self.q_des[7] = data[0,1]
+        self.q_des[8] = data[0,2]
+        self.q_des[9] = data[0,3]
+        self.q_des[10] = data[0,4]
+        self.q_des[11] = data[0,5]
+        self.q_des[12] = data[0,6]
+        self.q_des[13] = data[0,7]
+        self.q_des[14] = data[0,8]
+
+        try:
+            while loop < 2000:
+                #self.q_des[7] = data[loop,1]
+                #self.q_des[7:15] = np.ones([8,1])*np.sin(loop/2000)
+                #self.q_des[7] = np.ones([1,1])*np.sin(loop/2000.)
+                q, dq = sim.get_state()
+#                print("data", data[loop,1:])
+                #print(self.q_des[7])
+#                print("q: ",q[7:])
+                
+                ptau = np.diag(P) * se3.difference(self.robot.model, q, self.q_des)[6:] 
                 ptau += np.diag(D) * -dq[6:]
                 self.limit_torques(ptau)
 
                 # # Send the desired torque forces to the joints in simulation and proceede a step
                 # ptau = 0*np.array([1, 1, 1, 1, 1, 1, 1, 1])
+                # print("se diff: ", se3.difference(self.robot.model, q, self.q_des)[6:])
+                # print("tau: ", ptau)
                 sim.send_joint_command(ptau)
                 sim.step()
                 sleep(0.001)
@@ -399,6 +422,42 @@ class MotionExecutor(MotionSimulator):
 
         except KeyboardInterrupt:
             print("Keyboard interrupt")
+
+
+        loop = 0
+        try:
+            while 1:
+                self.q_des[7] = data[0,1] + (data[loop,1]-data[0,1])*10000000
+                self.q_des[8] = data[0,2] + (data[loop,2]-data[0,2])*10000000
+                self.q_des[9] = data[0,3] + (data[loop,3]-data[0,3])*10000000
+                self.q_des[10] = data[0,4] + (data[loop,4]-data[0,4])*10000000
+                self.q_des[11] = data[0,5] + (data[loop,5]-data[0,5])*10000000
+                self.q_des[12] = data[0,6] + (data[loop,6]-data[0,6])*10000000
+                self.q_des[13] = data[0,7] + (data[loop,7]-data[0,7])*10000000
+                self.q_des[14] = data[0,8] + (data[loop,8]-data[0,8])*10000000
+                q, dq = sim.get_state()
+                #print("data", data[loop,1:])
+                #print(self.q_des[7])
+                #print("q: ",q[7:])
+                
+                ptau = np.diag(P) * se3.difference(self.robot.model, q, self.q_des)[6:] 
+                ptau += np.diag(D) * -dq[6:]
+                self.limit_torques(ptau)
+
+                # # Send the desired torque forces to the joints in simulation and proceede a step
+                # ptau = 0*np.array([1, 1, 1, 1, 1, 1, 1, 1])
+                # print("se diff: ", se3.difference(self.robot.model, q, self.q_des)[6:])
+                # print("tau: ", ptau)
+                sim.send_joint_command(ptau)
+                sim.step()
+                sleep(0.001)
+
+                loop += 1
+
+        except KeyboardInterrupt:
+            print("Keyboard interrupt")
+
+
 
     #     desired_pos = desired_state("POSITION", self.time_vector, optimized_sequence=self.optimized_kin_plan)
     #     desired_vel = desired_state("VELOCITY", self.time_vector, optimized_sequence=self.optimized_kin_plan)
